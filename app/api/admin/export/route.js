@@ -10,12 +10,14 @@ export async function GET(req) {
   }
 
   const url = new URL(req.url);
+  const reveal = ['1', 'true', 'yes'].includes((url.searchParams.get('reveal') || '').toLowerCase());
   const origin = process.env.PUBLIC_BASE_URL || `${url.protocol}//${url.host}`;
   const rows = (await listTokens()).map((row) => ({
     name: row.giver,
     token: row.token,
     claimed: row.claimed,
-    url: `${origin}/?t=${row.token}`
+    url: `${origin}/?t=${row.token}`,
+    ...(reveal ? { receiver: row.receiver } : {})
   }));
 
   return NextResponse.json({ participants: rows });
